@@ -1,3 +1,4 @@
+import Utils.LoggedProfileWrapper;
 import Utils.PageHasNotLoadedException;
 import Utils.PropertiesReader;
 import org.openqa.selenium.*;
@@ -50,25 +51,22 @@ public class LoginPage extends BasePage {
 
     public LoginPage sendLogin(String login) {
         WebElement loginForm = driver.findElement(LOGIN_FORM_LOCATOR);
-        if (loginForm.isDisplayed()) {
-            loginForm.sendKeys(login);
-        }
+        assert loginForm.isDisplayed() : "Login form is not visible";
+        loginForm.sendKeys(login);
         return this;
     }
 
     public LoginPage sendPassword(String password) {
         WebElement passwordForm = driver.findElement(PASSWORD_FORM_LOCATOR);
-        if (passwordForm.isDisplayed()) {
-            passwordForm.sendKeys(password);
-        }
+        assert passwordForm.isDisplayed() : "Password form is not visible";
+        passwordForm.sendKeys(password);
         return this;
     }
 
-    public UserPage signIn() {
+    public UserPage signIn() throws PageHasNotLoadedException {
         WebElement signInButton = driver.findElement(SIGN_IN_BTN_LOCATOR);
-        if (signInButton.isDisplayed()) {
-            signInButton.click();
-        }
+        assert signInButton.isDisplayed() : "Sign in button is not visible";
+        signInButton.click();
         try {
             driver.findElement(INCORRECT_LOGIN_LOCATOR);
         } catch (NoSuchElementException exception) {
@@ -79,61 +77,73 @@ public class LoginPage extends BasePage {
 
     public AccessRecoveryPage restoreAccess() {
         WebElement canNotSignInBtn = driver.findElement(CAN_NOT_SIGN_IN_BTN_LOCATOR);
+        assert canNotSignInBtn.isDisplayed() : "Can't sign in button is not visible";
         canNotSignInBtn.click();
         return new AccessRecoveryPage();
     }
 
     public LoginPage signInWithQrCode() {
         WebElement signInWithQrCodeBtn = driver.findElement(SIGN_IN_WITH_QR_BTN_LOCATOR);
+        assert signInWithQrCodeBtn.isDisplayed() : "Sign in with QR code button is not visible";
         signInWithQrCodeBtn.click();
         return this;
     }
 
     public RegisterPage signUp() {
         WebElement signUpBtn = driver.findElement(SIGN_UP_LOCATOR);
-        if (signUpBtn.isDisplayed()) {
-            signUpBtn.click();
-        }
+        assert signUpBtn.isDisplayed() : "Sign up button is not visible";
+        signUpBtn.click();
         return new RegisterPage();
     }
 
     public MailPage goToMail() {
         LoginPageToolbar toolbar = new LoginPageToolbar(driver);
-        MailPage mail = null;
-        if (toolbar.isDisplayed()) {
-            mail = toolbar.goToMail();
-        }
-        return mail;
+        assert toolbar.isDisplayed() : "Toolbar is not visible";
+        return toolbar.goToMail();
     }
 
     public String getLoginLabelText() {
         WebElement loginLabel = driver.findElement(LOGIN_LABEL_LOCATOR);
+        assert loginLabel.isDisplayed() : "Login label is not visible";
         return loginLabel.getText();
     }
 
     public String getPasswordLabelText() {
         WebElement passwordLabel = driver.findElement(PASSWORD_LABEL_LOCATOR);
+        assert passwordLabel.isDisplayed() : "Password label is not visible";
         return passwordLabel.getText();
     }
 
     public LoginPage changeLanguage(String language) {
         LoginPageToolbar toolbar = new LoginPageToolbar(driver);
+        assert toolbar.isDisplayed() : "Toolbar is not visible";
         return toolbar.changeLanguageTo(language) ? this : null;
     }
 
     public HashSet<String> getLoggedProfilesNames() {
-        WebElement profilesListTab = driver.findElement(PROFILES_LIST_TAB_LOCATOR);
-        if (profilesListTab.isDisplayed()) {
-            profilesListTab.click();
-            List<WebElement> profilesNamesElements = driver.findElements(ALL_LOGGED_PROFILES_NAMES_LOCATOR);
-            if (!profilesNamesElements.isEmpty()) {
-                HashSet<String> profilesNames = new HashSet<>();
-                for (WebElement prNameEl : profilesNamesElements) {
-                    profilesNames.add(prNameEl.getText());
-                }
-                return profilesNames;
+        LoginPage loggedProfiles = openProfiles();
+        List<WebElement> profilesNamesElements = loggedProfiles.driver.findElements(ALL_LOGGED_PROFILES_NAMES_LOCATOR);
+        if (!profilesNamesElements.isEmpty()) {
+            HashSet<String> profilesNames = new HashSet<>();
+            for (WebElement prNameEl : profilesNamesElements) {
+                profilesNames.add(prNameEl.getText());
             }
+            return profilesNames;
         }
         return new HashSet<>();
+    }
+
+    public List<String> getNames() {
+        openProfiles();
+        WebElement profilesList = driver.findElement(PROFILES_LIST_TAB_LOCATOR);
+        LoggedProfileWrapper wrapper = new LoggedProfileWrapper(driver, profilesList);
+        return wrapper.getLoggedProfilesNames();
+    }
+
+    public LoginPage openProfiles() {
+        WebElement profilesListTab = driver.findElement(PROFILES_LIST_TAB_LOCATOR);
+        assert profilesListTab.isDisplayed() : "Profiles tab is not displayed";
+        profilesListTab.click();
+        return this;
     }
 }

@@ -7,7 +7,6 @@ import java.util.List;
 
 public class LoginPageToolbar {
 
-    private static final By TOOLBAR_PANEL_LOCATOR = By.id("ph-whiteline");
     private static final By TO_MAIL_RU = By.xpath("//a[text()=\"Mail.ru\"]");
     private static final By TO_MAIL = By.xpath("//a[text()=\"Почта\"]");
     private static final By CLOUD = By.xpath("//a[text()=\"Облако\"]");
@@ -24,7 +23,7 @@ public class LoginPageToolbar {
     private static final By[] allIconsLocators = new By[]{TO_MAIL_RU, TO_MAIL, CLOUD, CLASSMATES, IN_CONTACT,
             NEWS, ACQUAINTANCES, ALL_PROJECTS, LANGUAGES, HELP};
 
-    private WebDriver driver;
+    private final WebDriver driver;
 
     LoginPageToolbar(WebDriver driver) {
         this.driver = driver;
@@ -39,25 +38,21 @@ public class LoginPageToolbar {
     }
 
     public boolean isDisplayed() {
-
         for (By locator : allIconsLocators) {
-            if (!driver.findElement(locator).isDisplayed()) {
-                return false;
-            }
+            assert driver.findElement(locator).isDisplayed();
         }
         return true;
     }
 
     public boolean changeLanguageTo(String language) {
         WebElement languages = driver.findElement(LANGUAGES);
-        if (languages.isDisplayed()) {
-            languages.click();
-            List<WebElement> allLanguages = driver.findElements(ALL_LANGUAGES_LOCATOR);
-            for (WebElement lang : allLanguages) {
-                if (lang.getText().equals(language)) {
-                    lang.click();
-                    return true;
-                }
+        assert languages.isDisplayed();
+        languages.click();
+        List<WebElement> allLanguages = driver.findElements(ALL_LANGUAGES_LOCATOR);
+        for (WebElement lang : allLanguages) {
+            if (lang.getText().equals(language)) {
+                lang.click();
+                return true;
             }
         }
         return false;

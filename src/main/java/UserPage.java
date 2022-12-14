@@ -21,12 +21,8 @@ public class UserPage extends BasePage {
         }
     }
 
-    public UserPage getUserPage() {
-        try {
-            checkIfPageLoaded();
-        } catch (PageHasNotLoadedException exception) {
-            return null;
-        }
+    public UserPage getUserPage() throws PageHasNotLoadedException {
+        checkIfPageLoaded();
         return this;
     }
 
@@ -37,12 +33,10 @@ public class UserPage extends BasePage {
 
     public LoginPage loginToAnotherProfile() {
         WebElement options = driver.findElement(OPTIONS_LOCATOR);
-        if (options.isDisplayed()) {
-            options.click();
-            WebElement logToAnProfileBtn = driver.findElement(LOGIN_TO_ANOTHER_PROFILE_BTN_LOCATOR);
-            logToAnProfileBtn.click();
-            return new LoginPage(driver);
-        }
-        return null;
+        assert options.isDisplayed();
+        options.click();
+        WebElement logToAnProfileBtn = driver.findElement(LOGIN_TO_ANOTHER_PROFILE_BTN_LOCATOR);
+        logToAnProfileBtn.click();
+        return new LoginPage(driver);
     }
 }

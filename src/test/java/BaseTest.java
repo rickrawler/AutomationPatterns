@@ -11,14 +11,13 @@ public class BaseTest {
 
     private static final Properties property = new Properties();
     private static final String currentDir = System.getProperty("user.dir");
-
     public static ChromeDriver driver;
 
     @BeforeEach
     public void initDriver() {
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(1));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
     }
 
     @AfterEach

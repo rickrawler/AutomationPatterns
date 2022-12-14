@@ -1,11 +1,14 @@
 import Utils.PageHasNotLoadedException;
 import Utils.PropertiesReader;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -79,20 +82,23 @@ class LoginPageTest extends BaseTest {
         );
     }
 
+    @Disabled
     @Test
     void testLoginToAnotherUser() throws PageHasNotLoadedException {
-        LoginPage loginPage = new LoginPage(driver)
+        UserPage firstProfile = new LoginPage(driver)
                 .open()
                 .sendLogin(property.getProperty("botLogin"))
                 .sendPassword(property.getProperty("botPassword"))
-                .signIn()
-                .loginToAnotherProfile()
+                .signIn();
+
+        UserPage secondProfile = firstProfile.loginToAnotherProfile()
                 .sendLogin(property.getProperty("myLogin"))
                 .sendPassword(property.getProperty("myPassword"))
-                .signIn()
-                .loginToAnotherProfile();
+                .signIn();
 
-        HashSet<String> profileNames = loginPage.getLoggedProfilesNames();
+        LoginPage loginPageWithProfiles = secondProfile.loginToAnotherProfile();
+
+        HashSet<String> profileNames = loginPageWithProfiles.getLoggedProfilesNames();
 
         assertAll(
                 "profileNames",
@@ -102,4 +108,32 @@ class LoginPageTest extends BaseTest {
         );
     }
 
+
+    @Test
+    void testProfilesNames() throws PageHasNotLoadedException {
+        UserPage firstProfile = new LoginPage(driver)
+                .open()
+                .sendLogin(property.getProperty("botLogin"))
+                .sendPassword(property.getProperty("botPassword"))
+                .signIn();
+
+        UserPage secondProfile = firstProfile.loginToAnotherProfile()
+                .sendLogin(property.getProperty("myLogin"))
+                .sendPassword(property.getProperty("myPassword"))
+                .signIn();
+
+        LoginPage loginPageWithProfiles = secondProfile.loginToAnotherProfile();
+
+        List<String> actualProfiles = loginPageWithProfiles.getNames();
+
+        ArrayList<String> expectedProfiles = new ArrayList<>();
+        expectedProfiles.add(property.getProperty("botName"));
+        expectedProfiles.add(property.getProperty("myName"));
+        expectedProfiles.add(property.getProperty("defaultProfileName"));
+
+        assertAll(
+                () -> assertTrue(expectedProfiles.containsAll(actualProfiles)),
+                () -> assertEquals(actualProfiles.size(), expectedProfiles.size())
+        );
+    }
 }
