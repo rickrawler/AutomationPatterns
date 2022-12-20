@@ -1,5 +1,5 @@
-import Utils.PageHasNotLoadedException;
 import Utils.PropertiesReader;
+import Utils.User;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,13 +20,24 @@ class LoginPageTest extends BaseTest {
 
     @ParameterizedTest
     @MethodSource("loginDataProvider")
-    void testCorrectLogin(String login, String password, String expectedName) throws PageHasNotLoadedException {
+    void testCorrectLogin(String login, String password, String expectedName) {
         LoginPage loginPage = new LoginPage(driver);
         UserPage userPage = loginPage
                 .open()
                 .sendLogin(login)
                 .sendPassword(password)
                 .signIn();
+        assertEquals(expectedName, userPage.getUsername());
+    }
+
+    @ParameterizedTest
+    @MethodSource("loginDataProvider")
+    void testCorrectLoginWithUser(String login, String password, String expectedName) {
+        LoginPage loginPage = new LoginPage(driver);
+        User user = new User(login, password, expectedName.split(" ")[0], expectedName.split(" ")[1]);
+        UserPage userPage = loginPage
+                .open()
+                .login(user);
         assertEquals(expectedName, userPage.getUsername());
     }
 
@@ -38,7 +49,7 @@ class LoginPageTest extends BaseTest {
     }
 
     @Test
-    void testIncorrectLogin() throws PageHasNotLoadedException {
+    void testIncorrectLogin() {
         LoginPage loginPage = new LoginPage(driver);
         UserPage userPage = loginPage
                 .open()
@@ -49,7 +60,7 @@ class LoginPageTest extends BaseTest {
     }
 
     @Test
-    void testIncorrectPassword() throws PageHasNotLoadedException {
+    void testIncorrectPassword() {
         LoginPage loginPage = new LoginPage(driver);
         UserPage userPage = loginPage
                 .open()
@@ -60,7 +71,7 @@ class LoginPageTest extends BaseTest {
     }
 
     @Test
-    void testLinkToMail() throws PageHasNotLoadedException {
+    void testLinkToMail() {
         LoginPage loginPage = new LoginPage(driver);
         String mailPageUrl = loginPage
                 .open()
@@ -70,7 +81,7 @@ class LoginPageTest extends BaseTest {
     }
 
     @Test
-    void testLanguageChanging() throws PageHasNotLoadedException {
+    void testLanguageChanging() {
         LoginPage loginPage = new LoginPage(driver)
                 .open()
                 .changeLanguage("English");
@@ -84,7 +95,7 @@ class LoginPageTest extends BaseTest {
 
     @Disabled
     @Test
-    void testLoginToAnotherUser() throws PageHasNotLoadedException {
+    void testLoginToAnotherUser() {
         UserPage firstProfile = new LoginPage(driver)
                 .open()
                 .sendLogin(property.getProperty("botLogin"))
@@ -110,7 +121,7 @@ class LoginPageTest extends BaseTest {
 
 
     @Test
-    void testProfilesNames() throws PageHasNotLoadedException {
+    void testProfilesNames() {
         UserPage firstProfile = new LoginPage(driver)
                 .open()
                 .sendLogin(property.getProperty("botLogin"))

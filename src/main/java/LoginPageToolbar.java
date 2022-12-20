@@ -1,3 +1,4 @@
+import Utils.DriverWrapper;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -24,12 +25,15 @@ public class LoginPageToolbar {
             NEWS, ACQUAINTANCES, ALL_PROJECTS, LANGUAGES, HELP};
 
     private final WebDriver driver;
+    private final DriverWrapper driverWrapper;
 
     LoginPageToolbar(WebDriver driver) {
         this.driver = driver;
+        this.driverWrapper = new DriverWrapper(driver);
     }
 
     public MailPage goToMail() {
+        driverWrapper.waitUntilVisible(TO_MAIL, 1);
         WebElement toMail = driver.findElement(TO_MAIL);
         toMail.click();
         ArrayList<String> tabs = new ArrayList<>(driver.getWindowHandles());
@@ -37,17 +41,17 @@ public class LoginPageToolbar {
         return new MailPage(driver);
     }
 
-    public boolean isDisplayed() {
+    public void checkIfDisplayed() {
         for (By locator : allIconsLocators) {
-            assert driver.findElement(locator).isDisplayed();
+            driverWrapper.waitUntilVisible(locator, 1);
         }
-        return true;
     }
 
     public boolean changeLanguageTo(String language) {
+        driverWrapper.waitUntilClickable(LANGUAGES, 1);
         WebElement languages = driver.findElement(LANGUAGES);
-        assert languages.isDisplayed();
         languages.click();
+        driverWrapper.waitUntilVisible(ALL_LANGUAGES_LOCATOR, 1);
         List<WebElement> allLanguages = driver.findElements(ALL_LANGUAGES_LOCATOR);
         for (WebElement lang : allLanguages) {
             if (lang.getText().equals(language)) {
